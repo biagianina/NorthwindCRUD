@@ -10,6 +10,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using NorthwindCustomers.Data;
+using NorthwindCustomers.Models;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using ReflectionIT.Mvc.Paging;
 
 namespace NorthwindCustomers
 {
@@ -26,7 +29,8 @@ namespace NorthwindCustomers
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-
+            services.AddPaging();
+            services.AddDbContext<NorthwindContext>(options => options.UseSqlServer(Configuration.GetConnectionString("NorthwindCustomersContext")));
             services.AddDbContext<NorthwindCustomersContext>(options => options.UseSqlServer(Configuration.GetConnectionString("NorthwindCustomersContext")));
         }
 

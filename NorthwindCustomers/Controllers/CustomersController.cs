@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NorthwindCustomers.Data;
 using NorthwindCustomers.Models;
+using ReflectionIT.Mvc.Paging;
 
 namespace NorthwindCustomers.Controllers
 {
@@ -20,7 +21,7 @@ namespace NorthwindCustomers.Controllers
         }
 
         // GET: Customers
-        public async Task<IActionResult> Index(string searchString)
+        public async Task<IActionResult> Index(string searchString, int page = 1)
         {
             var customers = from c in _context.Customers select c;
             if (!string.IsNullOrEmpty(searchString))
@@ -32,7 +33,9 @@ namespace NorthwindCustomers.Controllers
                 || x.ContactTitle.Contains(searchString));
             }
 
-            return View(await customers.ToListAsync());
+            customers = customers.AsNoTracking();
+            var model = await PagingList.CreateAsync(customers.OrderBy(c => c.CompanyName), 10, page);
+            return View(model);
         }
 
         // GET: Customers/Details/5

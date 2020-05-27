@@ -9,6 +9,7 @@ namespace NorthwindCustomers.Models
 {
     public class Customer
     {
+        
         [Key]
         [StringLength(5)]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -16,12 +17,13 @@ namespace NorthwindCustomers.Models
         public string CustomerID { get; set; }
         [StringLength(40)]
         [Required]
+        [Display(Name ="Company Name")]
         public string CompanyName { get; set; }
         [StringLength(30)]
-
+        [Display(Name = "Contact Name")]
         public string ContactName { get; set; }
         [StringLength(30)]
-
+        [Display(Name = "Contact Title")]
         public string ContactTitle { get; set; }
         [StringLength(60)]
 
