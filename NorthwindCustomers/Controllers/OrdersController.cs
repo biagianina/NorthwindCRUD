@@ -39,6 +39,7 @@ namespace NorthwindCustomers.Controllers
                                        ShipCity = g.Key.ShipCity,
                                        ShipCountry = g.Key.ShipCountry
                                    };
+
             if (!string.IsNullOrEmpty(searchString))
             {
                 northwindContext = northwindContext.Where(x => x.CustomerName.Contains(searchString)
@@ -49,9 +50,10 @@ namespace NorthwindCustomers.Controllers
                 var searchModel = await PagingList.CreateAsync(northwindContext.OrderBy(c => c.CustomerName), northwindContext.Count(), page);
                 return View(searchModel);
             }
-                var orders = northwindContext.AsNoTracking().OrderByDescending(o => o.OrderDate);
+
+            var orders = northwindContext.AsNoTracking().OrderByDescending(o => o.OrderDate);
             var model = await PagingList.CreateAsync(orders, 10, page);
-            return View(model);          
+            return View(model);
         }
 
         // GET: Orders/Details/5
@@ -66,6 +68,7 @@ namespace NorthwindCustomers.Controllers
                 .Include(o => o.Customer)
                 .Include(o => o.Employee)
                 .Include(o => o.ShipViaNavigation)
+                .Include(o => o.OrderDetails).ThenInclude(d => d.Product)
                 .FirstOrDefaultAsync(m => m.OrderId == id);
             if (orders == null)
             {
@@ -81,6 +84,7 @@ namespace NorthwindCustomers.Controllers
             ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "CustomerId");
             ViewData["EmployeeId"] = new SelectList(_context.Employees, "EmployeeId", "FirstName");
             ViewData["ShipVia"] = new SelectList(_context.Shippers, "ShipperId", "CompanyName");
+            ViewData["ProductID"] = new SelectList(_context.Products, "ProductId", "ProductName");
             return View();
         }
 
@@ -89,18 +93,48 @@ namespace NorthwindCustomers.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OrderId,CustomerId,EmployeeId,OrderDate,RequiredDate,ShippedDate,ShipVia,Freight,ShipName,ShipAddress,ShipCity,ShipRegion,ShipPostalCode,ShipCountry")] Orders orders)
+        public async Task<IActionResult> Create([Bind("OrderId,CustomerId,EmployeeId,OrderDate,RequiredDate,ShippedDate,ShipVia,Freight,ShipName,ShipAddress,ShipCity,ShipRegion,ShipPostalCode,ShipCountry,OrderDetails,ProductId,UnitPrice,Quantity,Discount")] OrderViewModel order)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(orders);
+                Orders o = new Orders {
+                    OrderId = order.OrderId,
+                    CustomerId = order.CustomerId,
+                    EmployeeId = order.EmployeeId,
+                    OrderDate = order.OrderDate,
+                    RequiredDate = order.RequiredDate,
+                    ShippedDate = order.ShippedDate,
+                    ShipVia = order.ShipVia,
+                    Freight = order.Freight,
+                    ShipName = order.ShipName,
+                    ShipAddress = order.ShipAddress,
+                    ShipCity = order.ShipCity,
+                    ShipRegion = order.ShipRegion,
+                    ShipPostalCode = order.ShipPostalCode,
+                    ShipCountry = order.ShipCountry
+                };
+                OrderDetails d = new OrderDetails
+                {
+                    OrderId = order.OrderId,
+                    Order = o,
+                    ProductId = order.ProductId,
+                    UnitPrice = order.UnitPrice,
+                    Quantity = order.Quantity,
+                    Discount = order.Discount
+                };
+                _context.Add(o);
+                _context.Add(d);
+            
+                await _context.SaveChangesAsync();                             
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Create), nameof(OrderDetails), new { id = orders.OrderId});
+                return RedirectToAction(nameof(Index));
+
             }
-            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "CustomerId", orders.CustomerId);
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "EmployeeId", "FirstName", orders.EmployeeId);
-            ViewData["ShipVia"] = new SelectList(_context.Shippers, "ShipperId", "CompanyName", orders.ShipVia);
-            return View(orders);
+            ViewData["ProductId"] = new SelectList(_context.Products, "ProductId", "ProductName");
+            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "CustomerId", order.CustomerId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "EmployeeId", "FirstName", order.EmployeeId);
+            ViewData["ShipVia"] = new SelectList(_context.Shippers, "ShipperId", "CompanyName", order.ShipVia);
+            return View(order);
         }
 
         // GET: Orders/Edit/5

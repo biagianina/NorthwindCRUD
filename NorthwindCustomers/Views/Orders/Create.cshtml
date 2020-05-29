@@ -1,4 +1,5 @@
-﻿@model NorthwindCustomers.Models.Orders
+﻿@model NorthwindCustomers.Models.OrderViewModel
+
 
 @{
     ViewData["Title"] = "Create";
@@ -10,11 +11,11 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" asp-controller="Orders">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="CustomerId" class="control-label"></label>
-                <select asp-for="CustomerId" class="form-control" asp-items="ViewBag.CustomerId"></select>
+                <select asp-for="CustomerId" name="CustomerID" class="form-control" asp-items="ViewBag.CustomerId"></select>
             </div>
             <div class="form-group">
                 <label asp-for="EmployeeId" class="control-label"></label>
@@ -70,8 +71,27 @@
                 <span asp-validation-for="ShipCountry" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" name="submitButton" value="Create" class="btn btn-primary" />
-            </div>           
+                <label asp-for="ProductId" class="control-label"></label>
+                <select asp-for="ProductId" class="form-control" asp-items="ViewBag.ProductId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="UnitPrice" class="control-label"></label>
+                <input asp-for="UnitPrice" class="form-control" />
+                <span asp-validation-for="UnitPrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Quantity" class="control-label"></label>
+                <input asp-for="Quantity" class="form-control" />
+                <span asp-validation-for="Quantity" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Discount" class="control-label"></label>
+                <input asp-for="Discount" class="form-control" />
+                <span asp-validation-for="Discount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" name="create" value="Create" class="btn btn-primary" />
+            </div>
         </form>
     </div>
 </div>
